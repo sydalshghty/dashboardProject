@@ -27,7 +27,7 @@ function Login() {
         localStorage.setItem("refreshToken", data.refresh_token);
 
         alert("Login successful!");
-        navigate("/Products"); 
+        navigate("/Slider"); 
       } else {
         const errorData = await response.json();
         alert(`Login failed! ${errorData.message || "Please check your credentials."}`);
