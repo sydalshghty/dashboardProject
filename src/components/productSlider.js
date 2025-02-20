@@ -11,6 +11,9 @@ import { useEffect } from "react";
 import { useState } from "react";
 import Loading from "./Loading";
 import { token } from "./token";
+//import { useEffect } from "react";
+
+
 function ProductSlider() {
 
     const [Slider, setSlider] = useState([]);

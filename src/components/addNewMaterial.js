@@ -1,109 +1,70 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import imgReturn from "../images/Group 429.svg";
 import UserName from "./userName";
 import "../css/addNewMaterial.css";
-import { refreshAccessToken } from "./TokenContext"; // تأكد من أن refreshAccessToken موجود في ملف token.js
+import { useNavigate } from "react-router-dom";
+import "../css/addNewSlider.css";
+import { useState } from "react";
+import { token } from "./token";
 
 function AddNewMaterial() {
-  const [namePlaceholder, setNamePlaceholder] = useState("Name");
-  const [nameMaterial, setNameMaterial] = useState("");
-  const navigate = useNavigate();
 
-  const handleNavigate = () => {
-    navigate("/RowMaterial");
-  };
+    const [namePlaceholder, setNamePlaceholder] = useState("Name");
 
-  // دالة لإضافة المادة الجديدة
-  const AddNewMaterial = async () => {
-    const formData = new FormData();
-    formData.append("name", nameMaterial);
+    const navigate = useNavigate();
 
-    // محاولة لتحديث التوكن إذا كان منتهيًا
-    let accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      console.error("No access token found, please login again.");
-      navigate("/login");
-      return;
+    const handleNavigate = () => {
+        navigate("/RowMaterial")
     }
 
-    const response = await fetch("https://united-hanger-2025.up.railway.app/api/materials/new", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: formData,
-    });
+    const [nameMaterial, setNameMaterial] = useState("");
 
-    // التحقق من حالة التوكن
-    if (response.status === 401) { // التوكن منتهي الصلاحية
-      console.warn("Access token expired, refreshing...");
-      accessToken = await refreshAccessToken(); // حاول تحديث التوكن
-      if (!accessToken) {
-        console.error("Failed to refresh token, please login again.");
-        navigate("/login");
-        return;
-      }
+    const AddNewMaterial = async () => {
 
-      // إذا تم تحديث التوكن بنجاح، أعد إرسال الطلب مع التوكن الجديد
-      const retryResponse = await fetch("https://united-hanger-2025.up.railway.app/api/materials/new", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: formData,
-      });
+        const formData = new FormData();
+        formData.append("name", nameMaterial);
 
-      const data = await retryResponse.json();
-      console.log(data);
-    } else {
-      const data = await response.json();
-      console.log(data);
+      await fetch(`/api/materials/new`, {
+            method: "POST",
+            headers: {
+                    "Authorization": `Bearer ${token}` 
+          },
+            body: formData
+        }).then((response) => response.json())
+        .then(data => console.log(data))
     }
-  };
-
-  return (
-    <div className="Add-New-Material-Departament">
-      <div className="heading-AddNewMaterial">
-        <div className="col-material">
-          <img onClick={handleNavigate} src={imgReturn} alt="imgReturn" />
-          <p>Add New Material</p>
+    return (
+        <div className="Add-New-Material-Departament">
+            <div className="heading-AddNewMaterial">
+                <div className="col-material">
+                    <img onClick={handleNavigate} src={imgReturn} alt="imgReturn"/>
+                    <p>Add New Material</p>
+                </div>
+                <div className="col-userName">
+                    <UserName/>
+                </div>
+            </div>
+            <div className="col-input-material">
+                <p>Name</p>
+                <input
+                    onFocus={() => {
+                        setNamePlaceholder("")
+                    }}
+                    onBlur={() => {
+                        setNamePlaceholder("Name")
+                    }}
+                    onChange={(e) => {
+                        setNameMaterial(e.target.value)
+                    }}
+                    type="text" placeholder={namePlaceholder} name="Name-Material" />
+            </div>
+            <div className="Cancel-And-Delete">
+                    <button className="cancel">Cancel</button>
+                <button className="submit" onClick={() => {
+                    AddNewMaterial();
+                    handleNavigate();
+                }}>Submit</button>
+            </div>
         </div>
-        <div className="col-userName">
-          <UserName />
-        </div>
-      </div>
-      <div className="col-input-material">
-        <p>Name</p>
-        <input
-          onFocus={() => {
-            setNamePlaceholder("");
-          }}
-          onBlur={() => {
-            setNamePlaceholder("Name");
-          }}
-          onChange={(e) => {
-            setNameMaterial(e.target.value);
-          }}
-          type="text"
-          placeholder={namePlaceholder}
-          name="Name-Material"
-        />
-      </div>
-      <div className="Cancel-And-Delete">
-        <button className="cancel">Cancel</button>
-        <button
-          className="submit"
-          onClick={() => {
-            AddNewMaterial();
-            handleNavigate();
-          }}
-        >
-          Submit
-        </button>
-      </div>
-    </div>
-  );
+    )
 }
-
 export default AddNewMaterial;

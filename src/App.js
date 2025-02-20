@@ -31,26 +31,12 @@ import Login from "./components/login";
 import ViewInquiry from "./components/ViewInquiry";
 import { useNavigate } from "react-router-dom";
 import "./app.css";
-//import { refreshAccessToken } from "./components/login";
-import { useEffect } from "react";
-import { refreshAccessToken } from "./components/TokenContext";
+import useTokenRefresher from "./components/TokenContext";
+
+
 function App() {
-
-  useEffect(() => {
-    // إنشاء interval لتحديث التوكن كل 5 دقائق (5 * 60 * 1000 ملي ثانية)
-    const intervalId = setInterval(async () => {
-      const newAccessToken = await refreshAccessToken();
-      if (newAccessToken) {
-        console.log("Token successfully refreshed");
-      } else {
-        console.error("Failed to refresh token");
-      }
-    }, 5 * 60 * 1000); // 5 دقائق
-
-    // تنظيف الـ interval عند مغادرة الصفحة
-    return () => clearInterval(intervalId);
-  }, []);
-
+  useTokenRefresher()
+  
   const navigate = useNavigate("/");
 
   const navigateP = useNavigate("/Slider");
@@ -60,6 +46,7 @@ function App() {
     <div className="login">
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login/>}/>
         </Routes>
     </div>
     <div className="app">
